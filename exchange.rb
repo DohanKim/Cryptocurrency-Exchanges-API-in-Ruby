@@ -130,7 +130,9 @@ class Bithumb < Exchange
       ret[:error] = false
       ret[:timestamp] = body['data']['timestamp']
       ret[:highest_bid] = body['data']['bids'][0]['price'].to_i
+      ret[:highest_bid_quantity] = body['data']['bids'][0]['quantity'].to_f
       ret[:lowest_ask] = body['data']['asks'][0]['price'].to_i
+      ret[:lowest_ask_quantity] = body['data']['asks'][0]['quantity'].to_f
       return ret
     end
   end
@@ -252,7 +254,9 @@ class Coinone < Exchange
       ret[:error] = false
       ret[:timestamp] = body['timestamp'] + '000'
       ret[:highest_bid] = body['bid'][0]['price'].to_i
+      ret[:highest_bid_quantity] = body['bid'][0]['qty'].to_f
       ret[:lowest_ask] = body['ask'][0]['price'].to_i
+      ret[:lowest_ask_quantity] = body['ask'][0]['qty'].to_f
       return ret
     end
   end
