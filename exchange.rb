@@ -110,10 +110,10 @@ class Bithumb < Exchange
     else
       ret = {}
       ret[:error] = false
-      ret[:total_krw] = body['data']['total_krw']
-      ret[:available_krw] = body['data']['available_krw']
-      ret[('total_'+ coin_code).to_sym] = body['data']['total_' + coin_code]
-      ret[('available_' + coin_code).to_sym] = body['data']['available_' + coin_code]
+      ret[:total_krw] = body['data']['total_krw'].to_i
+      ret[:available_krw] = body['data']['available_krw'].to_i
+      ret[('total_'+ coin_code).to_sym] = body['data']['total_' + coin_code].to_f
+      ret[('available_' + coin_code).to_sym] = body['data']['available_' + coin_code].to_f
       return ret
     end
   end
@@ -233,10 +233,10 @@ class Coinone < Exchange
     else
       ret = {}
       ret[:error] = false
-      ret[:total_krw] = body['krw']['balance']
-      ret[:available_krw] = body['krw']['avail']
-      ret[('total_'+ coin_code).to_sym] = body[coin_code]['balance']
-      ret[('available_' + coin_code).to_sym] = body[coin_code]['avail']
+      ret[:total_krw] = body['krw']['balance'].to_i
+      ret[:available_krw] = body['krw']['avail'].to_i
+      ret[('total_'+ coin_code).to_sym] = body[coin_code]['balance'].to_f
+      ret[('available_' + coin_code).to_sym] = body[coin_code]['avail'].to_f
       return ret
     end
   end
