@@ -36,6 +36,10 @@ class Exchange
   def buying_quantity_including_exchange_fee(quantity)
     return quantity * (1 + self.class.fee)
   end
+
+  def bought_quantity_except_exchange_fee(quantity)
+    return quantity / (1 + self.class.fee)
+  end
 end
 
 class Bithumb < Exchange
@@ -105,6 +109,8 @@ class Bithumb < Exchange
       return {error: true}
     else
       ret = {}
+      ret[:error] = false
+      ret[:total_krw] = body['data']['total_krw']
       ret[:available_krw] = body['data']['available_krw']
       ret[('total_'+ coin_code).to_sym] = body['data']['total_' + coin_code]
       ret[('available_' + coin_code).to_sym] = body['data']['available_' + coin_code]
@@ -134,11 +140,12 @@ class Bithumb < Exchange
     body = check_and_get_response_body(res)
 
     if body.nil? 
-      logger.error(JSON.parse(res.body))
+      @logger.error(JSON.parse(res.body))
       return {error: true}
     else
       ret = {}
       ret[:error] = false
+      ret[:order_id] = body['order_id']
       return ret
     end
   end
@@ -148,11 +155,12 @@ class Bithumb < Exchange
     body = check_and_get_response_body(res)
 
     if body.nil? 
-      logger.error(JSON.parse(res.body))
+      @logger.error(JSON.parse(res.body))
       return {error: true}
     else
       ret = {}
       ret[:error] = false
+      ret[:order_id] = body['order_id']
       return ret
     end
   end
@@ -254,11 +262,12 @@ class Coinone < Exchange
     body = check_and_get_response_body(res)
 
     if body.nil? 
-      log(JSON.parse(res.body))
+      @logger.error(JSON.parse(res.body))
       return {error: true}
     else
       ret = {}
       ret[:error] = false
+      ret[:order_id] = body['orderId']
       return ret
     end
   end
@@ -268,11 +277,12 @@ class Coinone < Exchange
     body = check_and_get_response_body(res)
 
     if body.nil? 
-      log(JSON.parse(res.body))
+      @logger.error(JSON.parse(res.body))
       return {error: true}
     else
       ret = {}
       ret[:error] = false
+      ret[:order_id] = body['orderId']
       return ret
     end
   end
