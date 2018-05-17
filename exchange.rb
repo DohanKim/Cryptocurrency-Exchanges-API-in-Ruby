@@ -12,11 +12,12 @@ class Exchange
     attr_accessor :fee
   end
 
-  @fee = nil
+  @fee = 0
 
-  def initialize(api_key, secret_key)
+  def initialize(api_key, secret_key, logger)
     @api_key = api_key
     @secret_key = secret_key
+    @logger = logger
   end
 
   def check_and_get_response_body(res, &error_check) 
@@ -30,6 +31,10 @@ class Exchange
     else 
       return body
     end
+  end
+
+  def buying_quantity_including_exchange_fee(quantity)
+    return quantity * (1 + self.class.fee)
   end
 end
 
@@ -92,7 +97,7 @@ class Bithumb < Exchange
     end
   end
 
-  def balance(coin_code = 'btc')
+  def balance(coin_code)
     res = private_api("/info/balance", {currency: coin_code})
     body = check_and_get_response_body(res)
 
@@ -100,8 +105,6 @@ class Bithumb < Exchange
       return {error: true}
     else
       ret = {}
-      ret[:error] = false
-      ret[:total_krw] = body['data']['total_krw']
       ret[:available_krw] = body['data']['available_krw']
       ret[('total_'+ coin_code).to_sym] = body['data']['total_' + coin_code]
       ret[('available_' + coin_code).to_sym] = body['data']['available_' + coin_code]
@@ -122,6 +125,34 @@ class Bithumb < Exchange
       ret[:timestamp] = body['data']['timestamp']
       ret[:highest_bid] = body['data']['bids'][0]['price'].to_i
       ret[:lowest_ask] = body['data']['asks'][0]['price'].to_i
+      return ret
+    end
+  end
+
+  def buy(coin_code, price, quantity)
+    res = private_api("/trade/place", {order_currency: coin_code, units: quantity, price: price, type: 'bid'})
+    body = check_and_get_response_body(res)
+
+    if body.nil? 
+      logger.error(JSON.parse(res.body))
+      return {error: true}
+    else
+      ret = {}
+      ret[:error] = false
+      return ret
+    end
+  end
+
+  def sell(coin_code, price, quantity)
+    res = private_api("/trade/place", {order_currency: coin_code, units: quantity, price: price, type: 'ask'})
+    body = check_and_get_response_body(res)
+
+    if body.nil? 
+      logger.error(JSON.parse(res.body))
+      return {error: true}
+    else
+      ret = {}
+      ret[:error] = false
       return ret
     end
   end
@@ -171,7 +202,7 @@ class Coinone < Exchange
     return res
   end
 
-  def account_info(coin_code = 'btc')
+  def account_info
     res = private_api("/v2/account/user_info")
     body = check_and_get_response_body(res)
 
@@ -185,7 +216,7 @@ class Coinone < Exchange
     end
   end
 
-  def balance(coin_code = 'btc')
+  def balance(coin_code)
     res = private_api("/v2/account/balance")
     body = check_and_get_response_body(res)
 
@@ -214,6 +245,34 @@ class Coinone < Exchange
       ret[:timestamp] = body['timestamp'] + '000'
       ret[:highest_bid] = body['bid'][0]['price'].to_i
       ret[:lowest_ask] = body['ask'][0]['price'].to_i
+      return ret
+    end
+  end
+
+  def buy(coin_code, price, quantity)
+    res = private_api("/v2/order/limit_buy", {currency: coin_code, qty: quantity, price: price})
+    body = check_and_get_response_body(res)
+
+    if body.nil? 
+      log(JSON.parse(res.body))
+      return {error: true}
+    else
+      ret = {}
+      ret[:error] = false
+      return ret
+    end
+  end
+
+  def sell(coin_code, price, quantity)
+    res = private_api("/v2/order/limit_sell", {currency: coin_code, qty: quantity, price: price})
+    body = check_and_get_response_body(res)
+
+    if body.nil? 
+      log(JSON.parse(res.body))
+      return {error: true}
+    else
+      ret = {}
+      ret[:error] = false
       return ret
     end
   end
