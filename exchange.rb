@@ -34,11 +34,11 @@ class Exchange
   end
 
   def buying_quantity_including_exchange_fee(quantity)
-    return quantity * (1 + self.class.fee)
+    return quantity / (1 - self.class.fee)
   end
 
   def bought_quantity_except_exchange_fee(quantity)
-    return quantity / (1 + self.class.fee)
+    return quantity * (1 - self.class.fee)
   end
 end
 
