@@ -39,7 +39,7 @@ class Bithumb < Exchange
   @fee = 0.0015
 
   def check_and_get_response_body(res)
-    return super do |body|
+    return super(res) do |body|
       body['status'] != '0000'
     end
   end
@@ -59,7 +59,7 @@ class Bithumb < Exchange
     api_sign = Base64.strict_encode64(h)
 
     header = {'Api-Key': @api_key, 'Api-Sign': api_sign, 'Api-Nonce': nonce}
-    req = Net::HTTP::Post.new(uri.path, initheader = header)
+    req = Net::HTTP::Post.new(uri.path, header)
     req.body = str_data
     res = https.request(req)
 
@@ -133,7 +133,7 @@ class Coinone < Exchange
   @fee = 0.001  
 
   def check_and_get_response_body(res)
-    return super do |body|
+    return super(res) do |body|
       body['result'] != 'success'
     end
   end
@@ -152,7 +152,7 @@ class Coinone < Exchange
     sign = OpenSSL::HMAC.hexdigest(digest, @secret_key.upcase, encoded_payload)
 
     header = {'Content-Type': 'application/json', 'X-COINONE-PAYLOAD': encoded_payload, 'X-COINONE-SIGNATURE': sign}
-    req = Net::HTTP::Post.new(uri.path, initheader = header)
+    req = Net::HTTP::Post.new(uri.path, header)
     req.body = encoded_payload
     res = https.request(req)
 
